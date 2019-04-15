@@ -1,0 +1,28 @@
+language: python
+
+python:
+  - '3.6'
+
+install:
+  - pip install awscli
+  - pip install samcli
+
+stages:
+  - build
+  - test
+  - deploy
+
+jobs:
+  include:
+    - stage: build
+      script: 
+        - mkdir dist dist/python
+        - cp src/my_module.py dist/python
+        - pip install -r src/requirements.txt -t dist/python
+        - sam package --template-file template.yaml --output-template-file packaged.yml --s3-bucket lambda-layer-example
+    - stage: test
+      script:
+        - python -m pytest tests/
+    - stage: deploy
+      script:
+        - aws cloudformation deploy --stack-name lambda-layer-demo --template-file packaged.yml

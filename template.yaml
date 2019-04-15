@@ -10,7 +10,7 @@ Resources:
             CompatibleRuntimes:
                 - python3.6
                 - python3.7
-            ContentUri: src/
+            ContentUri: dist/
             Description: A sample lambda layer
             LayerName: my_layer
             RetentionPolicy: Retain
