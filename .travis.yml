@@ -5,7 +5,7 @@ python:
 
 install:
   - pip install awscli
-  - pip install samcli
+  - pip install aws-sam-cli
 
 stages:
   - build
