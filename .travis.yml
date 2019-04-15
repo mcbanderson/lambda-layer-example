@@ -25,4 +25,4 @@ jobs:
         - python -m pytest tests/
     - stage: deploy
       script:
-        - aws cloudformation deploy --stack-name lambda-layer-demo --template-file packaged.yml
+        - aws cloudformation deploy --region us-east-1 --stack-name lambda-layer-demo --template-file packaged.yml
