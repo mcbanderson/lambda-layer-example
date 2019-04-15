@@ -25,4 +25,8 @@ jobs:
         - python -m pytest tests/
     - stage: deploy
       script:
+        - mkdir dist dist/python
+        - cp src/my_module.py dist/python
+        - pip install -r src/requirements.txt -t dist/python
+        - sam package --template-file template.yaml --output-template-file packaged.yml --s3-bucket lambda-layer-example
         - aws cloudformation deploy --region us-east-1 --stack-name lambda-layer-demo --template-file packaged.yml
