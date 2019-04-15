@@ -3,8 +3,12 @@ language: python
 python:
   - '3.6'
 
-install:
+before_install:
   - pip install awscli
+  - mkdir -p ~/$TRAVIS_BUILD_NUMBER
+  - aws s3 sync s3://lambda-layer-example/$TRAVIS_BUILD_NUMBER ~/$TRAVIS_BUILD_NUMBER
+
+install:
   - pip install aws-sam-cli
 
 stages:
@@ -16,17 +20,19 @@ jobs:
   include:
     - stage: build
       script: 
-        - mkdir dist dist/python
+        - mkdir -p dist/python
         - cp src/my_module.py dist/python
         - pip install -r src/requirements.txt -t dist/python
         - sam package --template-file template.yaml --output-template-file packaged.yml --s3-bucket lambda-layer-example
+        - cp packaged.yml ~/$TRAVIS_BUILD_NUMBER
     - stage: test
       script:
         - python -m pytest tests/
     - stage: deploy
       script:
-        - mkdir dist dist/python
-        - cp src/my_module.py dist/python
-        - pip install -r src/requirements.txt -t dist/python
-        - sam package --template-file template.yaml --output-template-file packaged.yml --s3-bucket lambda-layer-example
-        - aws cloudformation deploy --region us-east-1 --stack-name lambda-layer-demo --template-file packaged.yml
+        - aws cloudformation deploy --region us-east-1 --stack-name lambda-layer-demo --template-file ~/$TRAVIS_BUILD_NUMBER/packaged.yml
+      after_success:
+        - aws s3 rm --recursive s3://lambda-layer-example/$TRAVIS_BUILD_NUMBER
+
+after_success:
+  - aws s3 sync ~/$TRAVIS_BUILD_NUMBER s3://lambda-layer-example/$TRAVIS_BUILD_NUMBER
